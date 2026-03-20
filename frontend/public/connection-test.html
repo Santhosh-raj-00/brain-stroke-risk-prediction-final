@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Connection Test</title>
+</head>
+<body>
+    <h1>Network Connection Test</h1>
+    <button onclick="testConnection()">Test Backend Connection</button>
+    <button onclick="testDNS()">Test DNS Resolution</button>
+    <div id="result"></div>
+
+    <script>
+        async function testConnection() {
+            const urls = [
+                'http://localhost:5000/',
+                'http://127.0.0.1:5000/',
+                'http://localhost:5000/api/test-cors'
+            ];
+            
+            for (let url of urls) {
+                try {
+                    document.getElementById('result').innerHTML += `<p>Testing ${url}...</p>`;
+                    const response = await fetch(url, { 
+                        method: 'GET',
+                        mode: 'cors'
+                    });
+                    document.getElementById('result').innerHTML += `<p style="color:green;">✓ ${url} - Status: ${response.status}</p>`;
+                } catch (error) {
+                    document.getElementById('result').innerHTML += `<p style="color:red;">✗ ${url} - Error: ${error.message}</p>`;
+                }
+            }
+        }
+
+        async function testDNS() {
+            try {
+                const ips = await Promise.all([
+                    fetch('https://dns.google/resolve?name=localhost&type=A')
+                        .then(r => r.json())
+                        .catch(() => null),
+                    fetch('https://cloudflare-dns.com/dns-query?name=localhost&type=A', {
+                        headers: {'Accept': 'application/dns-json'}
+                    })
+                        .then(r => r.json())
+                        .catch(() => null)
+                ]);
+                
+                document.getElementById('result').innerHTML += '<h3>DNS Resolution Results:</h3>';
+                document.getElementById('result').innerHTML += `<pre>${JSON.stringify(ips, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML += `<p>DNS Test Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

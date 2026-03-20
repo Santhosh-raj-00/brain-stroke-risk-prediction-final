@@ -1,0 +1,15 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-JWT-Extended
+Flask-Cors
+gunicorn
+psycopg2-binary
+xgboost
+shap
+torch
+opencv-python
+pillow
+numpy
+pandas
+scikit-learn
