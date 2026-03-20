@@ -1,29 +1,37 @@
 import numpy as np
 from PIL import Image
-import torch
-import torch.nn as nn
-import torchvision.transforms as transforms
-import torchvision.models as models
 from typing import Tuple, Dict, Any
 import os
 from pathlib import Path
-import torch.nn.functional as F
 
 
 class MedicalImageValidator:
     def __init__(self):
         """
-        Initialize the medical image validation service with ResNet18 model lazily
+        Initialize the medical image validation service lazily.
+        PyTorch is NOT imported here to save RAM and prevent OOM killing.
         """
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.transform = transforms.Compose([
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
-        
-        # We don't load the model immediately on boot to prevent Gunicorn timeout
+        self._device_cache = None
+        self._transform_cache = None
         self._loaded_model = None
+
+    @property
+    def device(self):
+        if self._device_cache is None:
+            import torch
+            self._device_cache = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        return self._device_cache
+
+    @property
+    def transform(self):
+        if self._transform_cache is None:
+            import torchvision.transforms as transforms
+            self._transform_cache = transforms.Compose([
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ])
+        return self._transform_cache
 
     @property
     def model(self):
@@ -36,6 +44,10 @@ class MedicalImageValidator:
         """
         Load the ResNet18 model with 2 classes (Normal vs Stroke)
         """
+        import torch
+        import torch.nn as nn
+        import torchvision.models as models
+        
         try:
             # Create ResNet18 model with 2 classes (No need to download default weights as we load local pt file)
             model = models.resnet18(weights=None)
