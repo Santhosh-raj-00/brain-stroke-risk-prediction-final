@@ -1,10 +1,3 @@
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-import numpy as np
-import io
 import os
 import json
 import base64
@@ -17,6 +10,9 @@ visualizations_bp = Blueprint('visualizations', __name__)
 
 def get_plot_base64():
     """Helper to convert plot to base64 string"""
+    import io
+    import base64
+    import matplotlib.pyplot as plt
     img = io.BytesIO()
     plt.savefig(img, format='png', bbox_inches='tight', dpi=100)
     plt.close()
@@ -26,6 +22,13 @@ def get_plot_base64():
 @visualizations_bp.route('/api/model/visualizations/heatmap', methods=['GET'])
 @token_required
 def get_correlation_heatmap(current_user):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import pandas as pd
+    import numpy as np
+    import io
     """Generate correlation heatmap of features from recent predictions"""
     try:
         print("Generating correlation heatmap...")
@@ -105,6 +108,11 @@ def get_correlation_heatmap(current_user):
 
 @visualizations_bp.route('/api/model/visualizations/confusion-matrix', methods=['GET'])
 def get_confusion_matrix():
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import io
+    
     """Serve the static confusion matrix image"""
     try:
         print("Serving confusion matrix image...")
@@ -137,10 +145,16 @@ def get_confusion_matrix():
             plt.figure(figsize=(6, 5))
             plt.text(0.5, 0.5, "Confusion Matrix\nNot Available", ha='center', va='center')
             plt.axis('off')
-            return jsonify({'image': get_plot_base64()})
+            
+            img = io.BytesIO()
+            plt.savefig(img, format='png', bbox_inches='tight', dpi=100)
+            plt.close()
+            img.seek(0)
+            encoded_string = base64.b64encode(img.getvalue()).decode('utf-8')
+            
+            return jsonify({'image': encoded_string})
             
     except Exception as e:
-        print(f"Error serving confusion matrix: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -148,6 +162,11 @@ def get_confusion_matrix():
 @visualizations_bp.route('/api/predictions/<prediction_id>/visualizations/shap', methods=['GET'])
 @token_required
 def get_shap_waterfall(current_user, prediction_id):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import io
     """Generate SHAP waterfall plot for a specific prediction"""
     try:
         print(f"Generating SHAP waterfall for prediction ID: {prediction_id}")
@@ -218,6 +237,12 @@ def get_shap_waterfall(current_user, prediction_id):
 @visualizations_bp.route('/api/predictions/<prediction_id>/visualizations/glucose', methods=['GET'])
 @token_required
 def get_glucose_plot(current_user, prediction_id):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import pandas as pd
+    import io
     """Generate Glucose vs Risk box plot with patient marker"""
     try:
         print(f"Generating glucose plot for prediction ID: {prediction_id}")

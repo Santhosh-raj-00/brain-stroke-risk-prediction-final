@@ -10,10 +10,10 @@ import base64
 import shap
 import os
 import joblib
-from services.prediction_service import get_prediction_service
 
 class VisualizationService:
     def __init__(self, static_dir='static/images'):
+        from services.prediction_service import get_prediction_service
         self.static_dir = static_dir
         self.prediction_service = get_prediction_service()
         self.explainer = None

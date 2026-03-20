@@ -7,8 +7,6 @@ from database.models.prediction import Prediction, RiskCategoryType
 from database.models.user import User
 from middleware.auth import token_required, role_required
 from middleware.roles import doctor_required
-from services.prediction_service import get_prediction_service
-from services.dl.image_validator import image_validator
 from datetime import datetime
 import uuid
 import json
@@ -22,6 +20,7 @@ def get_service():
     """Get or initialize prediction service"""
     global _prediction_service
     if _prediction_service is None:
+        from services.prediction_service import get_prediction_service
         _prediction_service = get_prediction_service()
     return _prediction_service
 
@@ -60,6 +59,7 @@ def create_prediction(current_user):
                 scan_file.save(file_path)
                 
                 # Check Image Validity (Strict)
+                from services.dl.image_validator import image_validator
                 validation_result = image_validator.validate_medical_image(file_path)
                 
                 if not validation_result['valid']:

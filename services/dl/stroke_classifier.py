@@ -1,7 +1,7 @@
 """
 Stroke Classifier Service using ResNet18 model
 """
-from services.dl.image_validator import image_validator
+
 
 class StrokeClassifier:
     def __init__(self):
@@ -21,6 +21,7 @@ class StrokeClassifier:
         """
         try:
             # Use the image_validator to get validation and stroke risk
+            from services.dl.image_validator import image_validator
             validation_result = image_validator.validate_medical_image(image_path)
             
             stroke_risk = validation_result.get('stroke_risk', 0.0)
