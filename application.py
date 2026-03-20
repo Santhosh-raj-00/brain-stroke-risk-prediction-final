@@ -56,6 +56,14 @@ def create_app(config_name=None):
     # Create upload directories
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
+    # Ensure database tables exist BEFORE returning the app
+    with app.app_context():
+        # Import models so SQLAlchemy knows the schemas
+        from database.models.user import User
+        from database.models.patient import Patient
+        from database.models.prediction import Prediction
+        db.create_all()
+        
     return app
 
 
