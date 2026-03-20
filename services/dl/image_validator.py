@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 from PIL import Image
 import torch
@@ -136,6 +135,7 @@ class MedicalImageValidator:
             True if grayscale distribution looks medical-like, False otherwise
         """
         try:
+            import cv2
             img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
             if img is None:
                 # If it's not grayscale, convert from RGB
@@ -279,6 +279,14 @@ class MedicalImageValidator:
             else:
                 image = image.convert('RGB')
                 
+            import torch
+            import torch.nn.functional as F
+            
+            # CRITICAL MEMORY FIX FOR RENDER: Force PyTorch to use exactly 1 thread
+            # PyTorch likes to spawn (CPU cores) threads, allocating 50-100MB memory per thread pool
+            # By limiting to 1 thread, we prevent OutOfMemory (OOM) silent kills!
+            torch.set_num_threads(1)
+            
             image_tensor = self.transform(image).unsqueeze(0).to(self.device)
             
             # Perform inference
