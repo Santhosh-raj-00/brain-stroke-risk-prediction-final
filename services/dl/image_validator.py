@@ -14,7 +14,7 @@ import torch.nn.functional as F
 class MedicalImageValidator:
     def __init__(self):
         """
-        Initialize the medical image validation service with ResNet18 model
+        Initialize the medical image validation service with ResNet18 model lazily
         """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.transform = transforms.Compose([
@@ -23,9 +23,15 @@ class MedicalImageValidator:
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
         
-        # Load the ResNet18 model with 2 classes (Normal vs Stroke)
-        self.model = self._load_resnet_model()
-        self.model.eval()
+        # We don't load the model immediately on boot to prevent Gunicorn timeout
+        self._loaded_model = None
+
+    @property
+    def model(self):
+        if self._loaded_model is None:
+            self._loaded_model = self._load_resnet_model()
+            self._loaded_model.eval()
+        return self._loaded_model
     
     def _load_resnet_model(self):
         """
