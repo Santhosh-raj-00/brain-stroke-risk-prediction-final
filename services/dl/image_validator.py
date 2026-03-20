@@ -38,8 +38,8 @@ class MedicalImageValidator:
         Load the ResNet18 model with 2 classes (Normal vs Stroke)
         """
         try:
-            # Create ResNet18 model with 2 classes
-            model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+            # Create ResNet18 model with 2 classes (No need to download default weights as we load local pt file)
+            model = models.resnet18(weights=None)
             
             # Freeze early layers
             for param in model.parameters():
