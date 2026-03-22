@@ -24,7 +24,10 @@ def doctor_required(f):
             
             return f(current_user, *args, **kwargs)
         except Exception as e:
-            return jsonify({'message': 'Token is invalid'}), 401
+            import traceback
+            traceback.print_exc()
+            print(f"Token validation failed: {str(e)}")
+            return jsonify({'message': f'Token is invalid: {str(e)}'}), 401
     
     return decorated
 

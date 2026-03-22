@@ -61,7 +61,8 @@ class MedicalImageValidator:
             model.fc = nn.Linear(num_ftrs, 2)
             
             # Load the trained weights
-            model_path = '../dl_models/brain_stroke_cnn.pt'
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            model_path = os.path.join(base_dir, 'dl_models', 'brain_stroke_cnn.pt')
             if os.path.exists(model_path):
                 checkpoint = torch.load(model_path, map_location=self.device)
                 if isinstance(checkpoint, dict):

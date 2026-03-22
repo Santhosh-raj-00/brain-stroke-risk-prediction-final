@@ -51,7 +51,8 @@ def create_prediction(current_user):
                     return jsonify({'error': 'Invalid file type. Please upload a valid medical image.'}), 400
                 
                 # Create upload directory
-                upload_dir = 'uploads/scans'
+                from flask import current_app
+                upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'scans')
                 os.makedirs(upload_dir, exist_ok=True)
                 
                 # Save file

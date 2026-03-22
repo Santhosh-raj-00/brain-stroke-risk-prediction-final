@@ -9,10 +9,11 @@ class PredictionService:
     """Service for making stroke risk predictions using Real ML Model"""
     
     def __init__(self, model_dir='ml_models'):
-        self.model_dir = model_dir
-        self.model_path = os.path.join(model_dir, 'xgboost_stroke.pkl')
-        self.scaler_path = os.path.join(model_dir, 'scaler.pkl')
-        self.config_path = os.path.join(model_dir, 'model_config.json')
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.model_dir = os.path.join(base_dir, model_dir)
+        self.model_path = os.path.join(self.model_dir, 'xgboost_stroke.pkl')
+        self.scaler_path = os.path.join(self.model_dir, 'scaler.pkl')
+        self.config_path = os.path.join(self.model_dir, 'model_config.json')
         
         self.model = None
         self.scaler = None

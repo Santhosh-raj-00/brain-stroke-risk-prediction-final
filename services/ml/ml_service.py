@@ -20,8 +20,8 @@ except ImportError:
 
 
 class StrokeRiskMLService:
-    def __init__(self, model_path: str = '../ml_models/xgboost_stroke.pkl', 
-                 schema_path: str = '../ml_models/feature_schema.json'):
+    def __init__(self, model_path: str = 'ml_models/xgboost_stroke.pkl', 
+                 schema_path: str = 'ml_models/feature_schema.json'):
         """
         Initialize the Stroke Risk ML Service
         
@@ -29,8 +29,14 @@ class StrokeRiskMLService:
             model_path: Path to the trained XGBoost model
             schema_path: Path to the feature schema
         """
-        self.model_path = model_path
-        self.schema_path = schema_path
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.model_path = os.path.join(base_dir, model_path) if not os.path.isabs(model_path) and not model_path.startswith('../') else model_path
+        if model_path.startswith('../'):
+            self.model_path = os.path.join(base_dir, model_path[3:])
+            
+        self.schema_path = os.path.join(base_dir, schema_path) if not os.path.isabs(schema_path) and not schema_path.startswith('../') else schema_path
+        if schema_path.startswith('../'):
+            self.schema_path = os.path.join(base_dir, schema_path[3:])
         self.model = None
         self.feature_schema = None
         self.label_encoders = {}
