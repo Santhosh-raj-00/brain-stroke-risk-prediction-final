@@ -43,22 +43,28 @@ class StrokeRiskMLService:
         self.scaler = StandardScaler()
         self.feature_columns = None
         
-        # Load model and schema
-        self.load_model()
+        # Delay model loading to prevent startup hang and OOM issues
+        self._model_loaded = False
         self.load_feature_schema()
     
     def load_model(self):
-        """Load the trained XGBoost model safely for production"""
+        """Load the trained XGBoost model safely for production (LAZY)"""
+        if self._model_loaded:
+            return
+            
         try:
             if not os.path.exists(self.model_path):
                 print(f"Model loading error: Model file not found at {self.model_path}.")
             else:
+                print(f"Loading XGBoost model from {self.model_path}...")
                 self.model = joblib.load(self.model_path)
                 print("Model loaded successfully.")
+                self._model_loaded = True
                 
-                # Initialize SHAP explainer
+                # Initialize SHAP explainer (Warning: Very memory intensive)
                 import shap
                 try:
+                    print("Initializing SHAP explainer...")
                     self.explainer = shap.TreeExplainer(self.model)
                     print("SHAP explainer initialized.")
                 except Exception as e:
@@ -290,6 +296,9 @@ class StrokeRiskMLService:
             Tuple of (risk_probability, feature_contributions)
         """
         try:
+            # Ensure model is loaded first
+            self.load_model()
+            
             # Preprocess the input
             processed_data = self.preprocess_input(input_data)
             
