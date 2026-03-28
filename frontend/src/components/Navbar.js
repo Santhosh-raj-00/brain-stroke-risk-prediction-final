@@ -79,19 +79,23 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  const navLinks = currentUser?.role === 'admin' 
+  // List of paths where the authenticated parts of the navbar should not be shown
+  const authRoutes = ['/', '/login/doctor', '/login/admin', '/register/doctor', '/register/admin'];
+  const isAuthRoute = authRoutes.includes(location.pathname);
+
+  const navLinks = currentUser?.role === 'admin'
     ? [
-        { path: '/dashboard', label: 'Dashboard' },
-        { path: '/patients', label: 'Patients' },
-        { path: '/history', label: 'History' },
-        { path: '/admin/analytics', label: 'Analytics' }
-      ]
+      { path: '/dashboard', label: 'Dashboard' },
+      { path: '/patients', label: 'Patients' },
+      { path: '/history', label: 'History' },
+      { path: '/admin/analytics', label: 'Analytics' }
+    ]
     : [
-        { path: '/dashboard', label: 'Dashboard' },
-        { path: '/patients', label: 'Patients' },
-        { path: '/history', label: 'History' },
-        { path: '/prediction', label: 'Predict' }
-      ];
+      { path: '/dashboard', label: 'Dashboard' },
+      { path: '/patients', label: 'Patients' },
+      { path: '/history', label: 'History' },
+      { path: '/prediction', label: 'Predict' }
+    ];
 
   const handleLogout = () => {
     logout();
@@ -100,13 +104,13 @@ const Navbar = () => {
   return (
     <Nav>
       <Logo to="/home">Stroke Predictor</Logo>
-      
-      {currentUser && (
+
+      {currentUser && !isAuthRoute && (
         <NavLinks>
           {navLinks.map(link => (
-            <NavLink 
-              key={link.path} 
-              to={link.path} 
+            <NavLink
+              key={link.path}
+              to={link.path}
               active={isActive(link.path) ? 'true' : undefined}
             >
               {link.label}
@@ -114,8 +118,8 @@ const Navbar = () => {
           ))}
         </NavLinks>
       )}
-      
-      {currentUser && (
+
+      {currentUser && !isAuthRoute && (
         <UserMenu>
           <UserName>Hello, {currentUser.full_name}</UserName>
           <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
