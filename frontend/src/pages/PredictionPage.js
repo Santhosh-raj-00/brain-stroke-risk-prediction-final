@@ -340,16 +340,15 @@ const PredictionPage = () => {
       const apiUrl = process.env.REACT_APP_API_URL;
       const url = apiUrl && apiUrl !== '/' ? `${apiUrl}/api/predictions` : '/api/predictions';
 
-      const response = await axios.post(
-        url,
-        formDataToSend,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        const response = await axios.post(
+          url,
+          formDataToSend,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
           }
-        }
-      );
+        );
 
 
       if (response.data.prediction_id) {

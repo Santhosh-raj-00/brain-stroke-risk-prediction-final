@@ -73,13 +73,24 @@ def create_prediction(current_user):
                 # Extract stroke risk from the ResNet18 model
                 stroke_risk = validation_result.get('stroke_risk', 0.0)
                 
-                # Perform DL Inference
-                from services.dl.stroke_classifier import get_stroke_classifier
-                classifier = get_stroke_classifier()
-                dl_result = classifier.predict(scan_path)
-                
-                # Update dl_result to include stroke risk from ResNet18
-                dl_result['stroke_risk'] = stroke_risk
+                # Inline the DL Inference logic to avoid double model inference
+                if stroke_risk > 0.6:
+                    prediction_text = "Stroke Detected"
+                    confidence = stroke_risk
+                elif stroke_risk > 0.2:
+                    prediction_text = "Possible Stroke Indicators"
+                    confidence = stroke_risk
+                else:
+                    prediction_text = "Normal"
+                    confidence = 1.0 - stroke_risk
+                    
+                dl_result = {
+                    'prediction': prediction_text,
+                    'confidence': confidence,
+                    'stroke_risk': stroke_risk,
+                    'modality': validation_result.get('modality', 'MRI'),
+                    'valid': True
+                }
         
         # Get form data
         data = request.form if request.form else request.get_json()
