@@ -336,9 +336,9 @@ const PredictionPage = () => {
         throw new Error('User authentication required');
       }
 
-      // Use relative path for proxy configuration
-      const apiUrl = process.env.REACT_APP_API_URL;
-      const url = apiUrl && apiUrl !== '/' ? `${apiUrl}/api/predictions` : '/api/predictions';
+      // Bypass relative path proxy to avoid multipart/form-data Network Errors
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const url = `${apiUrl}/api/predictions`;
 
         const response = await axios.post(
           url,

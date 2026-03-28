@@ -70,17 +70,24 @@ def create_app(config_name=None):
 # JWT error handlers
 @jwt.expired_token_loader
 def expired_token_callback(jwt_header, jwt_payload):
-    return {'message': 'Token has expired'}, 401
-
+    from flask import jsonify
+    resp = jsonify({'message': 'Token has expired'})
+    resp.headers.add('Access-Control-Allow-Origin', '*')
+    return resp, 401
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
-    return {'message': 'Invalid token'}, 401
-
+    from flask import jsonify
+    resp = jsonify({'message': 'Invalid token'})
+    resp.headers.add('Access-Control-Allow-Origin', '*')
+    return resp, 401
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):
-    return {'message': 'Access token required'}, 401
+    from flask import jsonify
+    resp = jsonify({'message': 'Access token required'})
+    resp.headers.add('Access-Control-Allow-Origin', '*')
+    return resp, 401
 
 
 app = create_app(os.environ.get("FLASK_ENV", "production"))
@@ -94,7 +101,11 @@ def handle_exception(e):
     # Log the actual error for debugging
     app.logger.error(f"Internal server error: {str(e)}", exc_info=True)
     # Return generic error to frontend
-    return {"error": "An internal error occurred. Please try again later."}, 500
+    from flask import jsonify
+    response = jsonify({"error": f"An internal error occurred: {str(e)}"})
+    response.status_code = 500
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 if __name__ == "__main__":
     # Production configuration - no debug mode
