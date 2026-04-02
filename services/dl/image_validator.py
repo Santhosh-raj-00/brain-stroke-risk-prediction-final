@@ -48,6 +48,9 @@ class MedicalImageValidator:
         import torch.nn as nn
         import torchvision.models as models
         
+        # Limit threads immediately to prevent PyTorch from allocating large memory pools
+        torch.set_num_threads(1)
+        
         try:
             # Create ResNet18 model with 2 classes (No need to download default weights as we load local pt file)
             model = models.resnet18(weights=None)
@@ -282,6 +285,7 @@ class MedicalImageValidator:
             Float representing stroke risk probability (0.0 to 1.0)
         """
         try:
+            import gc
             # Load and preprocess image
             image = Image.open(image_path)
             # Ensure the image is in RGB mode for the model
@@ -302,9 +306,13 @@ class MedicalImageValidator:
             
             image_tensor = self.transform(image).unsqueeze(0).to(self.device)
             
+            # Load model locally to avoid holding it in memory globally
+            local_model = self._load_resnet_model()
+            local_model.eval()
+            
             # Perform inference
             with torch.no_grad():
-                outputs = self.model(image_tensor)
+                outputs = local_model(image_tensor)
                 
                 # Apply softmax to get probabilities
                 probabilities = F.softmax(outputs, dim=1)
@@ -315,6 +323,14 @@ class MedicalImageValidator:
                 
             # Ensure the probability is within valid range
             stroke_risk = max(0.0, min(1.0, stroke_probability))
+            
+            # AGGRESSIVE MEMORY CLEANUP
+            del local_model
+            del image_tensor
+            del outputs
+            del probabilities
+            self._loaded_model = None
+            gc.collect()
             
             return stroke_risk
             
