@@ -337,7 +337,7 @@ const PredictionPage = () => {
       }
 
       // Bypass relative path proxy to avoid multipart/form-data Network Errors
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const apiUrl = process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL !== '/' ? process.env.REACT_APP_API_URL : '';
       const url = `${apiUrl}/api/predictions`;
 
         const response = await axios.post(

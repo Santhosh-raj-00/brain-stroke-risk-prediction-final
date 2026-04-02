@@ -130,9 +130,10 @@ const AdminAnalyticsPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const apiUrl = process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL !== '/' ? process.env.REACT_APP_API_URL : '';
         const responses = await Promise.allSettled([
           axios.get(
-            `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/admin/ml-metrics`,
+            `${apiUrl}/api/admin/ml-metrics`,
             {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -140,7 +141,7 @@ const AdminAnalyticsPage = () => {
             }
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/admin/shap-summary`,
+            `${apiUrl}/api/admin/shap-summary`,
             {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -148,7 +149,7 @@ const AdminAnalyticsPage = () => {
             }
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/admin/error-analysis`,
+            `${apiUrl}/api/admin/error-analysis`,
             {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -156,7 +157,7 @@ const AdminAnalyticsPage = () => {
             }
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/admin/threshold-analysis`,
+            `${apiUrl}/api/admin/threshold-analysis`,
             {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -164,7 +165,7 @@ const AdminAnalyticsPage = () => {
             }
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/admin/model-performance`,
+            `${apiUrl}/api/admin/model-performance`,
             {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
